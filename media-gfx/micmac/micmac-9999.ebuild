@@ -7,10 +7,15 @@ inherit cmake-utils eutils git-r3 versionator
 
 DOCV="31342a59eac40f7c24e59c4e8aec6ce46269f169"
 
-DESCRIPTION="Photorgammetry (SFM) software"
+DESCRIPTION="Photogrammetry (SFM) software"
 HOMEPAGE="http://logiciels.ign.fr/?-Micmac,3- https://github.com/micmacIGN/micmac/"
-[ "${PV}" == 9999 ] ||
-EGIT_COMMIT="v$(replace_version_separator 2 . ${PV})"
+if [[ "${PV}" == *_beta* ]] 
+then
+	EGIT_COMMIT="v$(replace_version_separator 2 . ${PV})"
+elif [[ "${PV}" == 1.1* ]]
+then
+	EGIT_COMMIT="MMASTER_v${PV}"
+fi
 EGIT_REPO_URI="https://github.com/micmacIGN/micmac.git"
 #SRC_URI="https://github.com/micmacIGN/micmac/archive/MMASTER_v${PV}.tar.gz -> ${P}.tar.gz"
 
@@ -38,17 +43,23 @@ DEPEND="${RDEPEND}"
 
 PATCHES=(
 	"${FILESDIR}"/Apero2Meshlab.patch
-	#"${FILESDIR}"/cuda.patch
-	#"${FILESDIR}"/GpGpu_cmake.patch
-	#"${FILESDIR}"/GpGpu_cmake2.patch
 	"${FILESDIR}"/CPP_CilliaCol.cpp.patch
 	"${FILESDIR}"/CPP_CilliaMap.cpp.patch
 	"${FILESDIR}"/cParamNewRechPH.h.patch
 	"${FILESDIR}"/ptxd_h.patch
 	"${FILESDIR}"/cSysCoor.cpp.patch
 )
+if [[ "${PV}" != 1.0* ]]
+then
+	PATCHES+=(
+		"${FILESDIR}"/cuda.patch
+		"${FILESDIR}"/GpGpu_cmake.patch
+		"${FILESDIR}"/GpGpu_cmake2.patch
+		"${FILESDIR}"/0001-Dont-build-ELISE_X11-stuff-when-its-disabled.patch  
+		"${FILESDIR}"/0002-Create-static-variables-only-ifdef-ELISE_X11.patch
+	)
+fi
 
-#[ "${PV}" == 9999 ] ||
 #S="${WORKDIR}/${PN}-MMASTER_v${PV}"
 # S_DOC="${WORKDIR}/Documentation-${DOCV}"
 
